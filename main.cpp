@@ -35,7 +35,15 @@
          while (getline(stream, line)) {
           cout << "Read line: " << line << endl;
          }
-         const char* message = "Hello, server!";
+            const char* message =
+        "HTTP/1.1 200 OK\r\n"
+        "Date: Sun, 23 Mar 2025 12:34:56 GMT\r\n"
+        "Server: SimpleC++Server\r\n"
+        "Content-Type: text/html; charset=UTF-8\r\n"
+        "Content-Length: 85\r\n"
+        "\r\n"
+        "<html>\n<head><title>Welcome</title></head>\n<body>\n<h1>Hello, World!</h1>\n</body>\n</html>";
+
     send(clientSocket, message, strlen(message), 0);
         // closing the socket.
         close(serverSocket);
