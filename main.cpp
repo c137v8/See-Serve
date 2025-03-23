@@ -6,9 +6,18 @@
     #include <sstream>
     using namespace std;
 
+string getCurrentDate() {
+    time_t now = time(0);
+    struct tm tm_struct;
+    gmtime_r(&now, &tm_struct);  
+
+    char buffer[100];
+    strftime(buffer, sizeof(buffer), "%a, %d %b %Y %H:%M:%S GMT", &tm_struct);
+    return string(buffer);
+}
     int main()
     {
-        cout << " Creating socket" << endl;
+        cout << "Creating socket" << endl;
         int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
 
         
@@ -33,11 +42,12 @@
 
     // Read line by line
          while (getline(stream, line)) {
-          cout << "Read line: " << line << endl;
+          cout << line << endl;
          }
+          string date = getCurrentDate();
             const char* message =
         "HTTP/1.1 200 OK\r\n"
-        "Date: Sun, 23 Mar 2025 12:34:56 GMT\r\n"
+        "Date: "+ date + "\r\n"
         "Server: SimpleC++Server\r\n"
         "Content-Type: text/html; charset=UTF-8\r\n"
         "Content-Length: 85\r\n"
