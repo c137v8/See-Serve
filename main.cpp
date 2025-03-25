@@ -36,6 +36,7 @@ int main() {
 
     char buffer[1024] = {0};
     recv(clientSocket, buffer, sizeof(buffer), 0);
+    cout << "Recived data" << endl;
     istringstream stream(buffer);
     string line;
 
@@ -43,10 +44,15 @@ int main() {
         if (!line.empty() && line.back() == '\r') {
             line.pop_back();
         }
+        cout << line ;
         
         if (line.rfind("GET ", 0) == 0) {
-            cout << "GET request detected!\n";
+            cout << "Method: GET\n";
             requesttype = "GET";
+        }
+          if (line.rfind("POST ", 0) == 0) {
+            cout << "Method: POST\n";
+            requesttype = "POST";
         }
          if (line.rfind("Host ", 0) == 0) {
             cout << "Connection from host: " << line;
@@ -54,16 +60,39 @@ int main() {
     }
     if (requesttype == "GET") {
     string date = getCurrentDate();
-    string message =
-        "HTTP/1.1 200 OK\r\n"
-        "Date: " + date + "\r\n"
-        "Server: SimpleC++Server\r\n"
-        "Content-Type: text/html; charset=UTF-8\r\n"
-        "Content-Length: 85\r\n"
-        "\r\n"
-        "<html>\n<head><title>Welcome</title></head>\n<body>\n<h1>Hello, World!</h1>\n</body>\n</html>";
+   string htmlContent = R"(<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <h2>Login</h2>
+    <form action="http://127.0.0.1:8081" method="POST">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        <br><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <br><br>
+        <button type="submit">Login</button>
+    </form>
+</body>
+</html>)";
 
-    send(clientSocket, message.c_str(), message.size(), 0);
+            string response =
+                "HTTP/1.1 200 OK\r\n"
+                "Date: " + date + "\r\n"
+                "Server: SimpleC++Server\r\n"
+                "Content-Type: text/html; charset=UTF-8\r\n"
+                "Content-Length: " + to_string(htmlContent.size()) + "\r\n"
+                "Connection: close\r\n"
+                "\r\n" +
+                htmlContent;
+
+
+    send(clientSocket, response.c_str(), response.size(), 0);
     }
 
     close(serverSocket);
