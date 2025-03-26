@@ -19,6 +19,8 @@ string getCurrentDate() {
     strftime(buffer, sizeof(buffer), "%a, %d %b %Y %H:%M:%S GMT", &tm_struct);
     return string(buffer);
 }
+string postData;
+bool isBody = false;
 
 int main() {
     cout << "Creating socket" << endl;
@@ -31,8 +33,12 @@ int main() {
 
     bind(serverSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress));
     listen(serverSocket, 5);
-
-    int clientSocket = accept(serverSocket, nullptr, nullptr);
+  while (true) {  
+        int clientSocket = accept(serverSocket, nullptr, nullptr);
+        if (clientSocket < 0) {
+            cerr << "Error accepting connection!" << endl;
+            continue;
+        }
 
     char buffer[1024] = {0};
     recv(clientSocket, buffer, sizeof(buffer), 0);
@@ -56,6 +62,13 @@ int main() {
         }
          if (line.rfind("Host ", 0) == 0) {
             cout << "Connection from host: " << line;
+        }
+            if (line.empty()) {
+            isBody = true;
+            continue;
+        }
+        if (isBody) {
+            postData = line;
         }
     }
     if (requesttype == "GET") {
@@ -94,7 +107,41 @@ int main() {
 
     send(clientSocket, response.c_str(), response.size(), 0);
     }
+    if(requesttype== "POST"){
+         cout << "Received POST Data: " << postData << endl;
+        
+        // Extract username and password
+        string username, password;
+        size_t userPos = postData.find("username=");
+        size_t passPos = postData.find("&password=");
 
+        if (userPos != string::npos && passPos != string::npos) {
+            username = postData.substr(userPos + 9, passPos - (userPos + 9));
+            password = postData.substr(passPos + 10);
+        }
+
+        cout << "Extracted Username: " << username << endl;
+        cout << "Extracted Password: " << password << endl;
+
+        string date = getCurrentDate();
+        string responseContent = "<html><body><h2>Login Successful</h2><p>Welcome, " + username + "!</p></body></html>";
+
+        string response =
+            "HTTP/1.1 200 OK\r\n"
+            "Date: " + date + "\r\n"
+            "Server: SimpleC++Server\r\n"
+            "Content-Type: text/html; charset=UTF-8\r\n"
+            "Content-Length: " + to_string(responseContent.size()) + "\r\n"
+            "Connection: close\r\n"
+            "\r\n" +
+            responseContent;
+
+        send(clientSocket, response.c_str(), response.size(), 0);
+  
+
+    }
+    close(clientSocket);
+  }
     close(serverSocket);
 
     return 0;
