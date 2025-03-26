@@ -15,12 +15,12 @@ This project is a simple C++ HTTP server designed for learning about buffer over
 ## How It Works
 
 - The server listens on port 8081 for incoming connections.
-- On a 'GET' request , it serves a simple html login page.
+- On a 'GET' request , it serves a simple  login page.
 - On a `POST` request, server extracts username and password, which are then authnticated.
 
 ## Understanding Buffer Overflow
 
-The server uses a fixed-size buffer (`char buffer[1024]`), but `recv()` is called with a larger size (`2048`), leading to a  buffer overflow vulnerability.
+The server uses a buffer (fixed with a size of 1024)  but `recv()` is called with a larger size (`2048`), leading to a possible  buffer overflow.
 
 ## Future Implimentations
 
