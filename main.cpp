@@ -8,7 +8,6 @@
 
 using namespace std;
 
-string requesttype;
 
 string getCurrentDate() {
     time_t now = time(0);
@@ -21,6 +20,9 @@ string getCurrentDate() {
 }
 string postData;
 bool isBody = false;
+bool isAuthenticated = false;
+string responseContent;
+string requesttype;
 
 int main() {
     cout << "Creating socket" << endl;
@@ -42,10 +44,11 @@ int main() {
 
     char buffer[1024] = {0};
     recv(clientSocket, buffer, sizeof(buffer), 0);
+    //recv(clientSocket, buffer, 2048, 0);
     cout << "Recived data" << endl;
     istringstream stream(buffer);
     string line;
-
+     string date = getCurrentDate();
     while (getline(stream, line)) {
         if (!line.empty() && line.back() == '\r') {
             line.pop_back();
@@ -72,7 +75,7 @@ int main() {
         }
     }
     if (requesttype == "GET") {
-    string date = getCurrentDate();
+     date = getCurrentDate();
    string htmlContent = R"(<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -122,10 +125,18 @@ int main() {
 
         cout << "Extracted Username: " << username << endl;
         cout << "Extracted Password: " << password << endl;
-
-        string date = getCurrentDate();
+        if ( username == "admin" && password == "virat2025"){
+        isAuthenticated = true; 
+        }
+        if( isAuthenticated){
+         date = getCurrentDate();
         string responseContent = "<html><body><h2>Login Successful</h2><p>Welcome, " + username + "!</p></body></html>";
+        }
+        else if (!isAuthenticated) {
+              date = getCurrentDate();
+        string responseContent = "<html><body><h2>Wrong password</h2><p>not Welcome, " + username + "!</p></body></html>";
 
+        }
         string response =
             "HTTP/1.1 200 OK\r\n"
             "Date: " + date + "\r\n"
