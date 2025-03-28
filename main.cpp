@@ -20,7 +20,6 @@ string getCurrentDate() {
 }
 string postData;
 bool isBody = false;
-bool isAuthenticated = false;
 string responseContent;
 string requesttype;
 
@@ -53,7 +52,7 @@ int main() {
         if (!line.empty() && line.back() == '\r') {
             line.pop_back();
         }
-        cout << line ;
+
         
         if (line.rfind("GET ", 0) == 0) {
             cout << "Method: GET\n";
@@ -111,7 +110,7 @@ int main() {
     send(clientSocket, response.c_str(), response.size(), 0);
     }
     if(requesttype== "POST"){
-         cout << "Received POST Data: " << postData << endl;
+         cout << "Received POST Data: " <<endl;
         
         // Extract username and password
         string username, password;
@@ -125,16 +124,14 @@ int main() {
 
         cout << "Extracted Username: " << username << endl;
         cout << "Extracted Password: " << password << endl;
-        if ( username == "admin" && password == "virat2025"){
-        isAuthenticated = true; 
-        }
-        if( isAuthenticated){
+       bool isAuthenticated = (username == "admin" && password == "virat2025");
+        if( isAuthenticated ==true){
          date = getCurrentDate();
-        string responseContent = "<html><body><h2>Login Successful</h2><p>Welcome, " + username + "!</p></body></html>";
+         responseContent = "<html><body><h2>Login Successful</h2><p>Welcome, " + username + "!</p></body></html>";
         }
-        else if (!isAuthenticated) {
+        else if (isAuthenticated ==false) {
               date = getCurrentDate();
-        string responseContent = "<html><body><h2>Wrong password</h2><p>not Welcome, " + username + "!</p></body></html>";
+         responseContent = "<html><body><h2>Wrong password</h2><p>not Welcome, " + username + "!</p></body></html>";
 
         }
         string response =
